@@ -362,6 +362,19 @@
         transform: none;
     }
 }
+@media(max-width: 640px){
+  .landing-hero{ padding: var(--space-5) 0 var(--space-4); gap: var(--space-4); }
+  .hero__meta{ gap:12px; }
+  .flow-card{ padding:14px; }
+  .trust{ padding:12px 14px; }
+  .feature{ padding:16px; }
+}
+@media(max-width: 480px){
+  .metrics{ gap:12px; }
+  .metric{ padding:14px; }
+  .metric__value{ font-size:1.5rem; }
+  .integration{ gap: var(--space-3); }
+}
 
 /* ── network traffic viz ── */
 .traffic-section {
@@ -454,10 +467,14 @@
     border: 1px solid #1e2321;
     background: #0f1412;
     border-radius: 14px;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
     position: relative;
 }
+.net-wrap::-webkit-scrollbar{ height:6px; }
+.net-wrap::-webkit-scrollbar-thumb{ background:#1e2321; border-radius:999px; }
 .net-wrap__bar {
     display: flex;
     align-items: center;
@@ -476,9 +493,19 @@
 }
 .net-svg {
     width: 100%;
+    min-width: 700px;
     height: auto;
     display: block;
     background: #0f1412;
+}
+@media(max-width: 640px){
+  .net-svg{ min-width: 620px; }
+  .net-wrap__bar{ flex-wrap:wrap; padding:8px 12px; }
+  .net-wrap__bar strong{ font-size:.72rem; }
+  .traffic__inner{ padding: var(--space-5) 0 var(--space-4); }
+}
+@media(max-width: 480px){
+  .net-svg{ min-width: 560px; }
 }
 .net-grid {
     stroke: #1e2321;

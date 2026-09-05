@@ -6,6 +6,14 @@
     flex-wrap: wrap;
     align-items: end;
 }
+@media(max-width: 640px){
+  .stat{ padding:14px; }
+  .stat__k{ font-size:1.2rem; }
+  .health-pre{ font-size:.78rem; }
+}
+@media(max-width: 480px){
+  .stat-grid{ gap:12px; }
+}
 .stat-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

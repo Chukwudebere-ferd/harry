@@ -4,6 +4,22 @@
     margin: 0 auto;
     padding: var(--space-6) var(--space-3);
 }
+@media(max-width: 640px){
+  .verify-wrap{ padding: var(--space-5) 14px; }
+  .stepper{ gap:0; }
+  .stepper__label{ font-size:.74rem; }
+  .stepper__circle{ width:28px; height:28px; font-size:.76rem; }
+  .status-card{ padding:20px 16px; }
+}
+@media(max-width: 480px){
+  .stepper__label{ display:none; }
+  .stepper__step{ gap:6px; }
+  .status-card{ padding:18px 14px; }
+  .status-card__icon{ width:48px; height:48px; font-size:18px; }
+}
+@media(max-width: 360px){
+  .verify-wrap{ padding: var(--space-4) 12px; }
+}
 .stepper {
     display: flex;
     gap: 0;

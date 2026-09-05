@@ -133,11 +133,12 @@
 .auth-field{ display:grid; gap:6px; margin-top:14px; }
 .auth-field label{ font-weight:600; font-size:.88rem; }
 .auth-otp{
-  display:grid; grid-template-columns: repeat(6,1fr); gap:8px; margin-top:10px;
+  display:grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap:8px; margin-top:14px; width:100%;
 }
 .auth-otp input{
-  height:48px; text-align:center; font-family:var(--font-mono); font-size:1.15rem; font-weight:700;
+  width:100%; height:52px; text-align:center; font-family:var(--font-mono); font-size:1.2rem; font-weight:700;
   border:1px solid var(--color-line-strong); border-radius:10px; background: var(--color-surface);
+  min-width:0;
 }
 .auth-otp input:focus{ outline:none; border-color:var(--color-accent); box-shadow:0 0 0 3px var(--color-accent-soft); }
 .auth-hint{ font-size:.82rem; color:var(--color-mute); margin:8px 0 0; }
@@ -147,3 +148,43 @@
 .auth-progress i{ flex:1; height:3px; border-radius:999px; background: var(--color-line); }
 .auth-progress i.on{ background: var(--color-accent); }
 .auth-progress span{ font-family:var(--font-mono); font-size:.72rem; color:var(--color-mute); }
+
+/* otp + auth responsive refinements */
+#email-show{ word-break: break-all; }
+@media(max-width: 1100px){
+  .auth-shell{ grid-template-columns: .9fr 1.1fr; }
+}
+@media(max-width: 900px){
+  .auth-shell{ grid-template-columns: 1fr; }
+  .auth-visual{ border-right:0; border-bottom:1px solid #1e2321; min-height:auto; padding:20px 16px 22px; }
+  .auth-panel{ padding: 20px 16px 28px; }
+  .auth-card{ max-width: 460px; }
+}
+@media(max-width: 640px){
+  .auth-card{ padding: 22px 16px; border-radius:12px; }
+  .auth-card h1{ font-size:1.4rem; }
+  .auth-visual h2{ font-size: clamp(1.5rem, 7vw, 1.9rem); }
+  .auth-visual p{ font-size:.88rem; }
+  .auth-flow__body{ padding:12px; }
+  .auth-steps{ gap:6px; }
+  .step-mini{ padding:10px; }
+  .auth-visual__ghost{ font-size: clamp(4rem, 18vw, 6rem); }
+}
+@media(max-width: 480px){
+  .auth-panel{ padding: 16px 12px 24px; }
+  .auth-card{ padding: 20px 14px; }
+  .auth-otp{ gap:6px; }
+  .auth-otp input{ height:48px; font-size:1.05rem; border-radius:8px; }
+  .auth-visual{ padding:16px 12px 18px; }
+  .auth-flow{ border-radius:10px; }
+  .auth-btn{ height:42px; font-size:.88rem; }
+}
+@media(max-width: 380px){
+  .auth-otp{ gap:5px; }
+  .auth-otp input{ height:44px; font-size:1rem; }
+  .auth-card h1{ font-size:1.35rem; }
+}
+@media(max-width: 340px){
+  .auth-otp{ gap:4px; }
+  .auth-otp input{ height:40px; font-size:.95rem; border-radius:7px; }
+}

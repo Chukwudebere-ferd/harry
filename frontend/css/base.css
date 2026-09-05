@@ -122,14 +122,32 @@
 .footer a:hover{ color:var(--color-fg); text-decoration:none; }
 
 /* responsive globals */
+@media(max-width: 900px){
+  .code-window{ overflow-x:auto; }
+  .table{ min-width:520px; }
+  div[style*="overflow:auto"]{ -webkit-overflow-scrolling: touch; }
+}
 @media(max-width: 640px){
   .shell{ padding:0 14px; }
   .header__inner{ height:56px; }
   .card{ padding:16px; }
   .hero{ padding: var(--space-5) 0 var(--space-4); }
   .hero h1{ font-size: clamp(1.9rem, 8vw, 2.6rem); }
-  .code-window__body{ font-size:.78rem; }
+  .code-window__body{ font-size:.78rem; padding:12px 14px; }
   .footer__grid{ flex-direction:column; }
+  .grid{ gap:12px; }
+}
+@media(max-width: 480px){
+  .shell{ padding:0 12px; }
+  .btn{ height:34px; padding:0 12px; font-size:.84rem; }
+  .input{ height:38px; font-size:.88rem; }
+  .badge{ height:22px; padding:0 8px; font-size:.7rem; }
+  .table th,.table td{ padding:10px 8px; font-size:.84rem; }
+}
+@media(max-width: 380px){
+  .brand{ font-size:1.15rem; gap:8px; }
+  .brand__mark{ width:24px; height:24px; font-size:.68rem; }
+  .card{ padding:14px; border-radius:8px; }
 }
 
 /* skeleton / empty */
