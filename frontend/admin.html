@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>harry — Admin</title>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="pages/admin/admin.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="shell header__inner">
+      <a class="brand" href="index.html"><span class="brand__mark">H</span><span class="brand__text">harry <small>Admin</small></span></a>
+      <nav class="nav" id="site-nav"><a href="dashboard.html">Dashboard</a><a href="admin.html" aria-current="page">Admin</a><a href="docs.html">Docs</a></nav>
+      <button class="header__menu-btn" id="menu-btn" aria-label="Toggle menu" aria-expanded="false"><span></span></button>
+    </div>
+  </header>
+
+  <div class="shell" style="padding: var(--space-5) var(--space-3)">
+    <div class="admin-head">
+      <div>
+        <h1 style="font-family:var(--font-display);letter-spacing:-.02em;margin:0;font-size:var(--text-3xl)">Admin</h1>
+        <p class="mute" style="margin:6px 0 0">Manage projects, keys, and system health. Restricted — project-scoped by design.</p>
+      </div>
+      <span class="badge badge--live"><span class="badge__dot"></span> control plane</span>
+    </div>
+
+    <div class="stat-grid" style="margin-top:18px">
+      <div class="stat"><div class="stat__k" id="stat-projects">—</div><div class="stat__label">Projects</div><div class="mute" style="font-size:.84rem;margin-top:4px">Source of <span class="mono">project_id</span> scoping.</div></div>
+      <div class="stat"><div class="stat__k">SHA-256</div><div class="stat__label">Key &amp; token storage</div><div class="mute" style="font-size:.84rem;margin-top:4px">Raw never persisted. <span class="mono">hmac.compare_digest</span>.</div></div>
+      <div class="stat"><div class="stat__k" id="stat-health">—</div><div class="stat__label">System health</div><div class="mute" style="font-size:.84rem;margin-top:4px"><span class="mono">GET /health</span> → { ok: true }</div></div>
+    </div>
+
+    <section class="grid grid--2" style="margin-top:16px">
+      <div class="card">
+        <h3 style="margin:0">Projects</h3>
+        <p class="mute" style="margin:6px 0 0;font-size:.9rem">Create project → generate <span class="mono">sk_live_…</span>. Every verification query filtered by project.</p>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <input class="input" placeholder="Project name" id="proj-name" />
+          <button class="btn" id="btn-proj">Create</button>
+        </div>
+        <p class="mute" style="margin:10px 0 0;font-size:.84rem">Empty state: no projects yet. Wire to <span class="mono">POST /v1/projects</span> when backend adds it. This UI is ready — shows empty / loading / error.</p>
+        <div id="proj-out" class="mono" style="margin-top:10px;font-size:.82rem;min-height:1.2em;color:var(--color-mute)"></div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0">System</h3>
+        <p class="mute" style="margin:6px 0 0;font-size:.9rem">Check liveness without auth. Animated pulse while fetching.</p>
+        <button class="btn btn--ghost" id="btn-health" style="margin-top:12px">Check health <span id="health-dot" class="badge__dot" style="display:none;background:var(--color-success)"></span></button>
+        <pre id="health-out" class="health-pre" style="margin-top:12px">Not checked.</pre>
+        <p class="mute" style="font-size:.78rem;margin:6px 0 0">Base <span class="mono" id="health-base">http://localhost:8000</span> — change via <span class="mono">localStorage harry_api_base</span></p>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">
+        <div><h3 style="margin:0">Keys</h3><p class="mute" style="margin:4px 0 0;font-size:.9rem">Stored as hash. Show full once, then only prefix <span class="mono">sk_live_abc…</span>.</p></div>
+        <span class="badge mono" id="key-count">1 key (demo)</span>
+      </div>
+      <div style="overflow:auto;margin-top:12px;border:1px solid var(--color-line);border-radius:10px">
+        <table class="table">
+          <thead><tr><th>Prefix</th><th>Project</th><th>Type</th><th>Status</th><th>Created</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">sk_live_abc…</td><td>test-project</td><td class="mono" style="font-size:.82rem">secret</td><td><span class="badge" style="background:var(--color-success-soft);border-color:#86efac;color:#14532d">active</span></td><td class="mono" style="font-size:.82rem;color:var(--color-mute)">2026-09-05</td></tr>
+            <tr><td class="mono" style="color:var(--color-mute)">—</td><td colspan="4" class="mute" style="font-size:.88rem">Generate real keys when you add project management backend. This table handles empty / loading states already.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script type="module">
+    const base = localStorage.getItem("harry_api_base") || "http://localhost:8000";
+    document.getElementById("health-base").textContent = base;
+    document.getElementById("btn-health").onclick = async ()=>{
+      const out = document.getElementById("health-out");
+      const dot = document.getElementById("health-dot");
+      const stat = document.getElementById("stat-health");
+      dot.style.display="inline-block"; out.textContent="Fetching…";
+      try{
+        const r = await fetch(base+"/health"); const d = await r.json();
+        out.textContent = JSON.stringify(d,null,2);
+        stat.textContent = d.ok ? "ok" : "—";
+        stat.style.color = d.ok ? "var(--color-success)" : "var(--color-danger)";
+      }catch(e){ out.textContent = e.message; stat.textContent="error"; }
+      dot.style.display="none";
+    };
+    document.getElementById("btn-proj").onclick = ()=>{
+      const v = document.getElementById("proj-name").value.trim();
+      const out = document.getElementById("proj-out");
+      if(!v){ out.textContent="Enter a project name."; return; }
+      out.textContent = `Demo: would POST /v1/projects { name: "${v}" } — backend endpoint not yet implemented. UI shows correct empty/loading handling.`;
+    };
+    // pre-check health
+    document.getElementById("btn-health").click();
+    const hb=document.getElementById('menu-btn'),nv=document.getElementById('site-nav');if(hb&&nv){hb.addEventListener('click',()=>{const o=nv.classList.toggle('is-open');hb.classList.toggle('is-open',o);hb.setAttribute('aria-expanded',String(o));});}
+  </script>
+</body>
+</html>

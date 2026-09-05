@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>404 — harry</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<style>
+.dash{border:1px solid var(--color-line);background:var(--color-surface);border-radius:var(--radius);padding:20px;overflow:hidden}
+.grid-bg{position:relative;height:220px;border:1px solid var(--color-line);border-radius:var(--radius-sm);background:var(--color-bg);overflow:hidden}
+.node{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--color-fg);border:2px solid var(--color-surface);box-shadow:0 0 0 1px var(--color-line)}
+.line{position:absolute;height:1px;background:var(--color-line);transform-origin:left center}
+.packet{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--color-fg);top:50%;left:0;transform:translate(-50%,-50%)}
+@keyframes move{from{left:0}to{left:100%}}
+.p1{animation:move 2s cubic-bezier(.4,0,.2,1) infinite}
+.p2{animation:move 2s cubic-bezier(.4,0,.2,1) infinite .6s}
+.p3{animation:move 2.2s cubic-bezier(.4,0,.2,1) infinite .3s}
+@media(prefers-reduced-motion:reduce){.p1,.p2,.p3{animation:none}}
+</style>
+</head>
+<body>
+<header class="header"><div class="shell header__inner"><a class="brand" href="index.html">harry</a><nav class="nav"><a href="index.html">Home</a><a href="dashboard.html">Dashboard</a></nav></div></header>
+<main class="shell" style="max-width:780px;padding:32px 16px">
+  <p class="mono mute" style="margin:0">404 — request not found</p>
+  <h1 style="font-family:var(--font-display);letter-spacing:-0.03em;margin:6px 0 0">No route for this request.</h1>
+  <p class="mute">The path you hit doesn’t exist on harry. Below is the request trace — packet left, no handshake back.</p>
+
+  <div class="dash" style="margin-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span class="mono" style="font-size:0.85rem">network trace</span><span class="badge mono">404</span>
+    </div>
+    <div class="grid-bg" aria-hidden="true">
+      <div class="line" style="left:12%;top:30%;width:28%;transform:rotate(0deg)"></div>
+      <div class="line" style="left:40%;top:30%;width:22%;transform:rotate(18deg)"></div>
+      <div class="line" style="left:62%;top:38%;width:24%;transform:rotate(-12deg)"></div>
+      <div class="node" style="left:12%;top:30%"></div>
+      <div class="node" style="left:40%;top:30%"></div>
+      <div class="node" style="left:62%;top:38%"></div>
+      <div class="node" style="left:86%;top:34%"></div>
+      <div class="line" style="left:12%;top:68%;width:30%;transform:rotate(0deg)"></div>
+      <div class="line" style="left:42%;top:68%;width:26%;transform:rotate(-16deg)"></div>
+      <div class="node" style="left:12%;top:68%"></div>
+      <div class="node" style="left:42%;top:68%"></div>
+      <div class="node" style="left:68%;top:60%"></div>
+      <div style="position:absolute;left:12%;top:30%;width:28%;height:1px"><div class="packet p1"></div></div>
+      <div style="position:absolute;left:40%;top:30%;width:22%;height:1px;transform:rotate(18deg);transform-origin:left center"><div class="packet p2"></div></div>
+      <div style="position:absolute;left:12%;top:68%;width:30%;height:1px"><div class="packet p3"></div></div>
+      <div style="position:absolute;right:12px;bottom:10px" class="mono mute">latency — timeout</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <a class="btn" href="index.html">Back to home</a>
+      <a class="btn btn--ghost" href="dashboard.html">Go to dashboard</a>
+      <span class="kbd">404</span>
+    </div>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>harry — Verify</title>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="pages/verify/verify.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="shell header__inner">
+      <a class="brand" href="index.html"><span class="brand__mark">H</span><span class="brand__text">harry <small>Verification</small></span></a>
+      <nav class="nav" id="site-nav"><a href="docs.html">Docs</a><a href="dashboard.html">Dashboard</a></nav>
+      <button class="header__menu-btn" id="menu-btn" aria-label="Toggle menu" aria-expanded="false"><span></span></button>
+    </div>
+  </header>
+
+  <main class="verify-wrap">
+    <a href="index.html" class="mono" style="font-size:.82rem;color:var(--color-mute);text-decoration:none">← Back to harry</a>
+    <h1 style="font-family:var(--font-display);letter-spacing:-.03em;margin:8px 0 0;font-size:var(--text-3xl)">Verify your account</h1>
+    <p class="mute" id="verify-sub" style="margin:6px 0 0">Checking status…</p>
+
+    <div class="stepper" role="list" aria-label="Verification steps">
+      <div class="stepper__step is-active" id="step-pending"><span class="stepper__circle">1</span><span class="stepper__label">Pending</span></div>
+      <div class="stepper__bar"><i id="bar-1"></i></div>
+      <div class="stepper__step" id="step-telegram"><span class="stepper__circle">2</span><span class="stepper__label">Open Telegram</span></div>
+      <div class="stepper__bar"><i id="bar-2"></i></div>
+      <div class="stepper__step" id="step-verified"><span class="stepper__circle">✓</span><span class="stepper__label">Verified</span></div>
+    </div>
+
+    <div class="card status-card status-card--pending" id="status-card">
+      <div class="status-card__icon" id="status-icon">◔</div>
+      <div style="font-weight:700;letter-spacing:-.02em">Status: <span id="v-status" class="mono" style="background:var(--color-bg);border:1px solid var(--color-line);padding:2px 8px;border-radius:999px">pending</span> <span class="poll-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+      <div class="mono" style="margin:8px 0 0;color:var(--color-mute);font-size:.82rem">ID: <span id="v-id">—</span></div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap">
+        <a id="v-telegram" class="btn btn--accent" href="#" style="display:none">Open in Telegram →</a>
+        <a class="btn btn--ghost" href="index.html">Back to harry</a>
+      </div>
+      <p class="mute" style="margin:14px 0 0;font-size:.88rem">After opening Telegram, return here. This page polls every 3 seconds when an API key is set in <a href="auth.html" style="color:var(--color-accent)">auth</a>.</p>
+      <p id="v-msg" class="mono" style="margin:10px 0 0;min-height:1.2em;color:var(--color-mute);font-size:.82rem"></p>
+      <div id="v-meta" class="mono" style="margin-top:10px;font-size:.78rem;color:var(--color-mute)"></div>
+    </div>
+
+    <div class="card" style="margin-top:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <span class="badge mono">Tip</span>
+      <span class="mute" style="font-size:.88rem">If you arrived via <span class="mono">/verify/vrf_…</span> the ID is in the URL. Otherwise open <span class="mono">verify.html?id=vrf_…</span>.</span>
+    </div>
+  </main>
+
+  <script type="module">
+    import { api, getApiKey } from "./js/api.js";
+    const params = new URLSearchParams(location.search);
+    const pathId = location.pathname.split("/").pop();
+    const id = params.get("id") || (pathId && pathId.startsWith("vrf_") ? pathId : "");
+    document.getElementById("v-id").textContent = id || "—";
+    const statusEl = document.getElementById("v-status");
+    const subEl = document.getElementById("verify-sub");
+    const msgEl = document.getElementById("v-msg");
+    const metaEl = document.getElementById("v-meta");
+    const cardEl = document.getElementById("status-card");
+    const iconEl = document.getElementById("status-icon");
+    const bar1 = document.getElementById("bar-1"), bar2 = document.getElementById("bar-2");
+    const stepPending = document.getElementById("step-pending"), stepTelegram = document.getElementById("step-telegram"), stepVerified = document.getElementById("step-verified");
+    const tgBtn = document.getElementById("v-telegram");
+
+    function setState(status, data){
+      statusEl.textContent = status;
+      statusEl.style.background = status==="verified" ? "var(--color-success-soft)" : status==="expired" || status==="cancelled" ? "var(--color-danger-soft)" : "var(--color-bg)";
+      statusEl.style.borderColor = status==="verified" ? "#86efac" : status==="expired" ? "#fecaca" : "var(--color-line)";
+      if(status==="pending"){
+        iconEl.textContent="◔"; cardEl.className="card status-card status-card--pending";
+        bar1.style.width="45%"; bar2.style.width="0"; stepPending.className="stepper__step is-active"; stepTelegram.className="stepper__step"; stepVerified.className="stepper__step";
+        subEl.textContent = getApiKey() ? "Polling every 3s — open Telegram to complete." : "Set API key in auth.html to enable live polling. Showing local state.";
+      } else if(status==="verified"){
+        iconEl.textContent="✓"; cardEl.className="card status-card";
+        bar1.style.width="100%"; bar2.style.width="100%"; stepPending.className="stepper__step is-done"; stepTelegram.className="stepper__step is-done"; stepVerified.className="stepper__step is-active";
+        subEl.textContent="Verified — you can return to the application.";
+        msgEl.textContent = data?.verified_at ? `Verified at ${new Date(data.verified_at).toLocaleString()}` : "Verification complete.";
+        if(tgBtn) tgBtn.style.display="none";
+      } else {
+        iconEl.textContent="✕"; bar1.style.width="100%"; bar2.style.width="0";
+        subEl.textContent = status==="expired" ? "This session has expired. Create a new one." : `Status: ${status}`;
+      }
+      if(data?.expires_at) metaEl.textContent = `expires_at ${new Date(data.expires_at).toLocaleString()} · external_user_id ${data.external_user_id||"—"}`;
+    }
+
+    async function fetchStatus(){
+      if(!id){ setState("not_found"); msgEl.textContent="No ID in URL. Open via /verify/vrf_… or ?id=vrf_…"; return; }
+      // try to show telegram link from stored dashboard row
+      try{
+        const rows = JSON.parse(localStorage.getItem("harry_verifications_v1")||"[]");
+        const row = rows.find(r=>r.id===id);
+        if(row?.telegram_url){ tgBtn.href=row.telegram_url; tgBtn.style.display="inline-flex"; }
+      }catch{}
+      const key = getApiKey();
+      if(!key){ setState("pending"); msgEl.textContent="Demo mode — polling disabled without API key."; return; }
+      try{
+        const data = await api(`/v1/verifications/${id}`);
+        setState(data.status, data);
+        if(data.status==="verified") clearInterval(iv);
+      }catch(e){
+        if(e.status===404) setState("not_found");
+        msgEl.textContent = e.data?.error?.message || e.message;
+      }
+    }
+    setState("pending");
+    fetchStatus();
+    const iv = setInterval(fetchStatus, 3000);
+    const hb=document.getElementById('menu-btn'),nv=document.getElementById('site-nav');if(hb&&nv){hb.addEventListener('click',()=>{const o=nv.classList.toggle('is-open');hb.classList.toggle('is-open',o);hb.setAttribute('aria-expanded',String(o));});}
+  </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>harry — Privacy</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+<header class="header"><div class="shell header__inner"><a class="brand" href="index.html">harry</a><nav class="nav"><a href="docs.html">Docs</a><a href="privacy.html" aria-current="page">Privacy</a><a href="terms.html">Terms</a></nav></div></header>
+<main class="shell" style="max-width:780px;padding:32px 16px">
+  <h1 style="font-family:var(--font-display);letter-spacing:-0.03em;margin:0">Privacy Policy</h1>
+  <p class="mute mono">Last updated 2026-09-05</p>
+  <div class="grid" style="margin-top:16px">
+    <section class="card"><h2 style="margin:0">What we collect</h2><p class="mute">Only what verification needs: <span class="mono">telegram_user_id</span>, <span class="mono">chat_id</span>, optional <span class="mono">username</span>/<span class="mono">first_name</span>. No passwords, no session files. Verification tokens are stored as SHA-256 hashes.</p></section>
+    <section class="card"><h2 style="margin:0">How we use it</h2><p class="mute">To complete verification, store connection for future notifications you approve, and log verification status per project. Queries are always scoped by <span class="mono">project_id</span>.</p></section>
+    <section class="card"><h2 style="margin:0">Retention</h2><p class="mute">Verification sessions expire in 5 minutes. Connections remain until you delete the project or disconnect. Contact the project owner to remove your connection.</p></section>
+    <section class="card"><h2 style="margin:0">Contact</h2><p class="mute">For data requests, contact the harry project owner via your integrating application.</p></section>
+  </div>
+</main>
+</body>
+</html>

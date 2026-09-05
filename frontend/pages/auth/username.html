@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>harry — Choose username</title>
+  <link rel="stylesheet" href="../../css/tokens.css" />
+  <link rel="stylesheet" href="../../css/base.css" />
+  <link rel="stylesheet" href="auth.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="shell header__inner">
+      <a class="brand" href="../../index.html"><span class="brand__mark">H</span><span class="brand__text">harry <small>Username</small></span></a>
+      <nav class="nav" id="site-nav"><a href="../../docs.html">Docs</a><a href="../../auth.html">Sign in</a></nav>
+      <button class="header__menu-btn" id="menu-btn" aria-label="Toggle menu" aria-expanded="false"><span></span></button>
+    </div>
+  </header>
+
+  <div class="auth-shell">
+    <div class="auth-visual" aria-hidden="true">
+      <span class="auth-visual__eyebrow">step 3 of 3</span>
+      <h2>Pick a<br/>username.</h2>
+      <p>How you’ll appear in harry. You can change it later. All data is project-scoped.</p>
+      <div class="auth-flow">
+        <div class="auth-flow__bar"><strong>harry — auth</strong><span>email → OTP → username</span></div>
+        <div class="auth-flow__body">
+          <div class="auth-progress"><i class="on"></i><i class="on"></i><i class="on"></i><span>3 / 3</span></div>
+          <div class="auth-steps">
+            <div class="step-mini"><div class="step-mini__num">✓</div><h4>Email</h4><p class="mute">Verified</p></div>
+            <div class="step-mini"><div class="step-mini__num">✓</div><h4>OTP</h4><p class="mute">Confirmed</p></div>
+            <div class="step-mini is-active"><div class="step-mini__num">3</div><h4>Username</h4><p class="mute">Final step</p></div>
+          </div>
+          <div style="margin-top:12px;background:#131916;border:1px solid #1e2321;border-radius:8px;padding:10px 12px;display:flex;gap:10px;align-items:center">
+            <span style="width:28px;height:28px;border-radius:50%;background:#0e7490;color:#fff;display:grid;place-items:center;font-family:var(--font-mono);font-weight:700" id="avatar">H</span>
+            <div><div class="mono" style="font-size:.82rem;color:#e8e6e1" id="email-mini">you@company.com</div><div class="mono" style="font-size:.72rem;color:#7a8581">Ready to create account</div></div>
+            <span style="margin-left:auto" class="badge" style="background:#22c55e;color:#fff;border-color:#16a34a;font-size:.68rem">✓ OTP ok</span>
+          </div>
+        </div>
+      </div>
+      <div class="auth-visual__ghost">harry</div>
+    </div>
+
+    <div class="auth-panel">
+      <div class="auth-card">
+        <a href="otp.html" class="mono" style="font-size:.82rem;color:var(--color-mute);text-decoration:none">← Back</a>
+        <h1 style="margin-top:8px">Choose username</h1>
+        <p class="auth-card__sub">This is all we need. No password, no extra fields.</p>
+
+        <form class="grid" onsubmit="return false;" style="margin-top:18px">
+          <div class="auth-field"><label for="username">Username</label><input id="username" class="input" placeholder="harry_user" autocomplete="username" required /></div>
+          <p class="mono" style="font-size:.78rem;color:var(--color-mute);margin:0">3–20 characters · letters, numbers, underscore</p>
+          <p id="err" class="mono" style="font-size:.78rem;color:var(--color-danger);min-height:1.2em;margin:0"></p>
+          <a class="auth-btn auth-btn--accent" href="../../dashboard.html" id="btn-done" style="text-decoration:none">Continue to harry →</a>
+          <p class="mono" style="font-size:.72rem;color:var(--color-mute);text-align:center;margin:0">Demo: no real account yet — goes to dashboard.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const email=localStorage.getItem('harry_pending_email')||'you@company.com';
+    document.getElementById('email-mini').textContent=email;
+    const av=document.getElementById('avatar'); if(av) av.textContent=email[0]?.toUpperCase()||'H';
+    const inp=document.getElementById('username'),err=document.getElementById('err'),btn=document.getElementById('btn-done');
+    inp.addEventListener('input',()=>{const v=inp.value; const ok=/^[a-zA-Z0-9_]{3,20}$/.test(v); inp.style.borderColor= v && !ok ? 'var(--color-danger)' : '';});
+    btn.addEventListener('click',e=>{
+      const v=inp.value.trim();
+      if(!/^[a-zA-Z0-9_]{3,20}$/.test(v)){e.preventDefault();err.textContent='Use 3–20 letters, numbers or underscore.';return;}
+      localStorage.setItem('harry_username', v);
+      localStorage.setItem('harry_email_verified', email);
+    });
+    const hb=document.getElementById('menu-btn'),nv=document.getElementById('site-nav');if(hb&&nv){hb.addEventListener('click',()=>{const o=nv.classList.toggle('is-open');hb.classList.toggle('is-open',o);hb.setAttribute('aria-expanded',String(o));});}
+  </script>
+</body>
+</html>

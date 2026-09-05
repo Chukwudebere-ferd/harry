@@ -1,5 +1,4 @@
-harry is a 
-# Telegram Verification API
+# harry is a Telegram Verification API
 
 ## Overview
 

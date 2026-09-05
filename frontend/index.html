@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>harry — Telegram verification API</title>
+  <meta name="description" content="Verify users via Telegram deep links. No OTP copy. Secure sessions, polling and webhooks for any app." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="pages/landing/landing.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="shell header__inner">
+      <a class="brand" href="index.html">
+        <span class="brand__mark">H</span>
+        <span class="brand__text">harry <small>Verification API · v1</small></span>
+      </a>
+      <nav class="nav" id="site-nav" aria-label="Primary">
+        <a href="docs.html">Documentation</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="auth.html">Sign in</a>
+        <a href="admin.html" class="nav__cta">Get API key</a>
+      </nav>
+      <button class="header__menu-btn" id="menu-btn" aria-label="Toggle menu" aria-expanded="false"><span></span></button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <!-- HERO -->
+    <section class="landing-hero">
+      <div class="reveal">
+        <span class="eyebrow"><span style="width:7px;height:7px;border-radius:50%;background:var(--color-accent);display:inline-block"></span> SaaS infrastructure · Telegram-first</span>
+        <h1>Telegram verification<br/>without OTP copy.</h1>
+        <p>
+          Create a secure session, send <span class="mono" style="background:var(--color-surface);border:1px solid var(--color-line);padding:2px 6px;border-radius:6px">t.me/YourBot?start=TOKEN</span> — the user opens Telegram, the bot validates, you poll or receive a webhook. Multi-tenant, project-scoped, SHA-256 hashed.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--accent" href="dashboard.html">Start verifying — free <span aria-hidden="true">→</span></a>
+          <a class="btn btn--ghost" href="docs.html">Read docs <span class="mono" style="font-size:.78rem">↗</span></a>
+        </div>
+        <div class="hero__meta">
+          <span><strong>300s</strong> TTL · single-use</span>
+          <span><strong>128-bit+</strong> entropy</span>
+          <span><strong>2–5s</strong> polling</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;margin-top:16px;color:var(--color-mute);font-size:.84rem">
+          <span style="display:inline-flex;gap:6px;align-items:center"><span class="badge__dot" style="background:var(--color-success)"></span> All systems operational</span>
+          <span>·</span><a href="admin.html" style="color:var(--color-accent);font-weight:600;text-decoration:none">Check health →</a>
+        </div>
+      </div>
+
+      <!-- Visual: flow + code window -->
+      <div class="reveal" style="animation-delay:.08s">
+        <div class="flow-card" aria-hidden="true">
+          <div class="flow-head">
+            <span class="flow-title">Verification flow — live</span>
+            <span class="badge badge--live"><span class="badge__dot"></span> polling 3s</span>
+          </div>
+          <svg class="flow-svg" viewBox="0 0 640 170" role="img" aria-label="Verification pipeline">
+            <!-- edges -->
+            <path class="edge edge--animated" d="M 124 72 L 196 72" />
+            <path class="edge edge--animated" d="M 304 72 L 376 72" />
+            <path class="edge edge--animated" d="M 484 72 L 520 72" style="animation-delay:.25s" />
+            <!-- pulse on verification API -->
+            <circle class="pulse-ring" cx="250" cy="72" r="10"></circle>
+            <circle class="pulse-ring" cx="250" cy="72" r="10" style="animation-delay:.6s"></circle>
+            <!-- nodes -->
+            <rect class="flow-node" x="18" y="36" width="108" height="72" rx="10" />
+            <rect class="flow-node flow-node--accent" x="196" y="36" width="108" height="72" rx="10" />
+            <rect class="flow-node" x="376" y="36" width="108" height="72" rx="10" />
+            <rect class="flow-node" x="520" y="48" width="102" height="48" rx="10" />
+            <!-- node labels -->
+            <text x="72" y="68" text-anchor="middle" class="flow-label">Client app</text>
+            <text x="72" y="82" text-anchor="middle" class="flow-sub">POST /v1/verifications</text>
+            <text x="250" y="68" text-anchor="middle" class="flow-label--inv flow-label">Verification API</text>
+            <text x="250" y="82" text-anchor="middle" class="flow-sub" style="fill:#cbd5d1">vrf_ · SHA-256</text>
+            <text x="430" y="68" text-anchor="middle" class="flow-label">Telegram bot</text>
+            <text x="430" y="82" text-anchor="middle" class="flow-sub">/start vfy_…</text>
+            <text x="571" y="68" text-anchor="middle" class="flow-label">Verified</text>
+            <text x="571" y="82" text-anchor="middle" class="flow-sub">webhook / poll</text>
+            <!-- icons simplified -->
+            <circle cx="72" cy="92" r="3" fill="var(--color-accent)"/>
+            <circle cx="250" cy="92" r="3" fill="#fff"/>
+            <circle cx="430" cy="92" r="3" fill="var(--color-accent)"/>
+            <circle cx="571" cy="92" r="3" fill="var(--color-success)"/>
+          </svg>
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;position:relative">
+            <span class="badge mono" style="font-size:.74rem">vfy_x8Kp92LmQw71…</span>
+            <span class="badge mono" style="font-size:.74rem;background:var(--color-accent-soft);border-color:var(--color-accent-line)">expires in 04:42</span>
+            <span class="badge mono" style="font-size:.74rem">project_id scoped</span>
+          </div>
+        </div>
+
+        <div class="code-window" style="margin-top:16px">
+          <div class="code-window__bar">
+            <span class="code-window__dot" style="background:#ff5f57"></span>
+            <span class="code-window__dot" style="background:#ffbd2e"></span>
+            <span class="code-window__dot" style="background:#28ca42"></span>
+            <span style="margin-left:8px;font-family:var(--font-mono);font-size:.76rem;color:#9aa3a0">curl — create verification</span>
+            <span class="badge" style="margin-left:auto;background:#1e2622;color:#7dd3d1;border-color:#2a352f;font-size:.7rem">200 OK</span>
+          </div>
+          <div class="code-window__body">
+<pre><span class="token-cmt"># 1 — create session (server-side)</span>
+<span class="token-kw">POST</span> /v1/verifications  <span class="token-cmt">Authorization: Bearer sk_live_…</span>
+{ <span class="token-str">"external_user_id"</span>: <span class="token-str">"user_12345"</span>, <span class="token-str">"metadata"</span>: {<span class="token-str">"purpose"</span>:<span class="token-str">"signup"</span>} }
+
+<span class="token-cmt">→</span> { <span class="token-str">"id"</span>: <span class="token-str">"vrf_abc123"</span>, <span class="token-str">"telegram_url"</span>: <span class="token-str">"https://t.me/ExampleVerifyBot?start=vfy_…"</span> }
+
+<span class="token-cmt"># 2 — poll 2–5s until terminal state</span>
+<span class="token-kw">GET</span> /v1/verifications/vrf_abc123  →  { <span class="token-str">"status"</span>: <span class="token-str">"verified"</span> }</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="trust">
+      <span class="trust__label">Trusted stack</span>
+      <div class="trust__items">
+        <span>FastAPI</span><span class="trust__dot"></span>
+        <span>PostgreSQL</span><span class="trust__dot"></span>
+        <span>SHA-256 tokens</span><span class="trust__dot"></span>
+        <span>Project-scoped</span><span class="trust__dot"></span>
+        <span>Webhook ready</span>
+      </div>
+      <span style="margin-left:auto;font-size:.8rem;color:var(--color-mute)">No raw secrets stored · HMAC compare</span>
+    </div>
+
+    <!-- METRICS -->
+    <section style="margin-top: var(--space-5)">
+      <div class="metrics">
+        <div class="metric reveal"><div class="metric__value">3 ms</div><div class="metric__label">Median token issue</div><div class="metric__delta">↗ p95 12 ms</div></div>
+        <div class="metric reveal"><div class="metric__value">300 s</div><div class="metric__label">Default expiry</div><div class="metric__delta">configurable TTL</div></div>
+        <div class="metric reveal"><div class="metric__value">192-bit</div><div class="metric__label">Token entropy</div><div class="metric__delta">secrets.token_urlsafe</div></div>
+        <div class="metric reveal"><div class="metric__value">100</div><div class="metric__label">Max pending / project</div><div class="metric__delta">abuse guard</div></div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="grid grid--3" style="margin-top: var(--space-5)">
+      <div class="card feature reveal">
+        <div class="feature__icon">◈</div>
+        <h3>Create verification</h3>
+        <p>Single-use, short-lived, cryptographically random. Never stored raw.</p>
+        <div class="feature__code">POST /v1/verifications<br/>{ "external_user_id": "user_12345" }<br/>→ telegram_url + verification_url</div>
+      </div>
+      <div class="card feature reveal">
+        <div class="feature__icon feature__icon--accent">⬢</div>
+        <h3>Complete via bot</h3>
+        <p>Bot gets <span class="mono">/start TOKEN</span>, validates hash, binds <span class="mono">telegram_user_id</span> to your user.</p>
+        <div class="feature__code">POST /internal/telegram/webhook<br/>GET /v1/verifications/{id} · poll 2–5s</div>
+      </div>
+      <div class="card feature reveal">
+        <div class="feature__icon">⬣</div>
+        <h3>Notify &amp; connect</h3>
+        <p>After verification, connection persists for future Telegram messages.</p>
+        <div class="feature__code">GET /v1/telegram/connections/{user}<br/>→ { connected: true }</div>
+      </div>
+    </section>
+
+    <!-- INTEGRATION -->
+    <section class="card" style="margin-top: var(--space-5)">
+      <div class="integration">
+        <div>
+          <span class="eyebrow">Integration</span>
+          <h2 style="margin:8px 0 0;font-family:var(--font-display);letter-spacing:-.02em;font-size:var(--text-2xl)">Three calls to verified.</h2>
+          <div class="steps" style="margin-top:18px">
+            <div class="step"><div><h4>Your backend creates a session</h4><p>Keep <span class="mono">sk_live_…</span> server-side. Pass <span class="mono">external_user_id</span> you own.</p></div></div>
+            <div class="step"><div><h4>User taps Verify with Telegram</h4><p>Redirect to <span class="mono">https://t.me/YourBot?start=vfy_…</span> or our hosted <span class="mono">/verify/vrf_…</span> page.</p></div></div>
+            <div class="step"><div><h4>You poll or wait for webhook</h4><p><span class="mono">GET /v1/verifications/{id}</span> every 3s, or register <span class="mono">webhook_url</span> for push.</p></div></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:18px">
+            <a class="btn btn--accent" href="docs.html">Open API reference</a>
+            <a class="btn btn--ghost" href="dashboard.html">Try in dashboard</a>
+          </div>
+        </div>
+        <div class="code-window">
+          <div class="code-window__bar"><span class="code-window__dot" style="background:#ff5f57"></span><span class="code-window__dot" style="background:#ffbd2e"></span><span class="code-window__dot" style="background:#28ca42"></span><span style="margin-left:8px;font-family:var(--font-mono);font-size:.76rem;color:#9aa3a0">verify.js</span></div>
+          <div class="code-window__body">
+<pre><span class="token-kw">const</span> r = <span class="token-kw">await</span> fetch(<span class="token-str">"https://api.example.com/v1/verifications"</span>, {
+  method: <span class="token-str">"POST"</span>,
+  headers: { Authorization: <span class="token-str">`Bearer ${process.env.API_KEY}`</span> },
+  body: JSON.stringify({ external_user_id: user.id })
+});
+<span class="token-kw">const</span> { telegram_url, id } = <span class="token-kw">await</span> r.json();
+<span class="token-cmt">// redirect user → telegram_url</span>
+<span class="token-kw">const</span> iv = setInterval(<span class="token-kw">async</span> () =&gt; {
+  <span class="token-kw">const</span> s = <span class="token-kw">await</span> fetch(<span class="token-str">`/v1/verifications/${id}`</span>, { headers }).then(r=&gt;r.json());
+  <span class="token-kw">if</span> (s.status === <span class="token-str">"verified"</span>) clearInterval(iv);
+}, <span class="token-str">3000</span>);</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="ticker" aria-hidden="true"><div class="ticker__track"><span>Project-scoped · SHA-256 hashed · Single-use · 5 min expiry · Rate limited · Telegram deep link · No OTP copy · </span><span>Project-scoped · SHA-256 hashed · Single-use · 5 min expiry · Rate limited · Telegram deep link · No OTP copy · </span></div></div>
+
+  <footer class="footer">
+    <div class="shell footer__grid">
+      <div><strong style="font-family:var(--font-display);color:var(--color-fg)">harry</strong> — Telegram verification API. Built for developers who need proof of Telegram ownership without passwords.<br/><span class="mono" style="font-size:.78rem">API base http://localhost:8000 · version /v1 · health at GET /health</span></div>
+      <div style="display:flex;gap:18px"><a href="docs.html">Docs</a><a href="dashboard.html">Dashboard</a><a href="auth.html">Sign in</a><a href="admin.html">Admin</a></div>
+    </div>
+  </footer>
+
+  <!-- NETWORK TRAFFIC VISUALIZATION -->
+  <section class="traffic-section" aria-label="Live network traffic">
+    <div class="shell traffic__inner">
+      <div class="traffic__head">
+        <div>
+          <span class="eyebrow" style="color:#7dd3d1">Live network · animated tracks</span>
+          <h2>Every request takes a track.<br/>You see it move.</h2>
+          <p>Real topology: apps → edge → Verification API → Postgres → Telegram → poll / webhook. Dots are requests; tracks pulse when active. Built for dense, API-first operations — not decoration.</p>
+        </div>
+        <div class="traffic__legend">
+          <span><i></i> request</span>
+          <span><i class="ok"></i> verified</span>
+          <span><i class="warn"></i> pending</span>
+          <span class="mono" style="font-size:.72rem;color:#9aa3a0;border-color:#1e2321;background:transparent">20 / min · 100 pending cap</span>
+        </div>
+      </div>
+
+      <div class="net-wrap">
+        <div class="net-wrap__bar">
+          <span style="display:flex;gap:6px;align-items:center"><span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block"></span><span style="width:10px;height:10px;border-radius:50%;background:#ffbd2e;display:inline-block"></span><span style="width:10px;height:10px;border-radius:50%;background:#28ca42;display:inline-block"></span></span>
+          <strong>harry — network map</strong> <span style="margin-left:8px">api.harry.internal · v1 · region eu-1</span>
+          <span style="margin-left:auto;display:flex;gap:8px;align-items:center"><span class="badge" style="background:#131916;border-color:#1e2321;color:#7dd3d1;font-size:.7rem"><span class="badge__dot" style="background:#22c55e"></span> 12.4k req / min</span><span class="mono" style="color:#7a8581">p95 11 ms</span></span>
+        </div>
+        <svg class="net-svg" viewBox="0 0 1200 420" role="img" aria-label="Network traffic: apps to API to Telegram">
+          <!-- grid -->
+          <g class="net-grid" aria-hidden="true">
+            <path d="M0 80 H1200"/><path d="M0 180 H1200"/><path d="M0 280 H1200"/><path d="M0 360 H1200"/>
+            <path d="M200 0 V420"/><path d="M520 0 V420"/><path d="M760 0 V420"/><path d="M1000 0 V420"/>
+          </g>
+
+          <!-- tracks: apps → API -->
+          <path id="track-a1" class="net-track net-track--active" d="M 180 74 C 320 74, 360 118, 520 138" />
+          <path id="track-a2" class="net-track net-track--active" d="M 200 92 C 340 92, 380 132, 520 150" style="animation-delay:.2s" />
+          <path id="track-a3" class="net-track net-track--active" d="M 190 110 C 360 110, 420 148, 520 162" style="animation-delay:.4s" />
+          <!-- API → DB / Telegram / Webhook -->
+          <path id="track-db" class="net-track net-track--active" d="M 600 170 C 600 210, 600 240, 600 268" />
+          <path id="track-tg" class="net-track net-track--active" d="M 620 168 C 760 168, 820 220, 980 268" />
+          <path id="track-poll" class="net-track net-track--active" d="M 540 170 C 380 170, 260 220, 140 268" />
+          <path id="track-wh" class="net-track" d="M 610 182 C 760 200, 820 310, 980 348" style="stroke-dasharray:4 8; opacity:.7" />
+          <path id="track-exp" class="net-track" d="M 600 185 C 600 230, 640 300, 600 348" style="stroke-dasharray:4 8; opacity:.6" />
+
+          <!-- pulse on API -->
+          <circle class="net-pulse" cx="560" cy="152" r="10"></circle>
+          <circle class="net-pulse" cx="560" cy="152" r="10" style="animation-delay:.7s"></circle>
+
+          <!-- nodes: row 1 apps -->
+          <g>
+            <rect class="net-node" x="40" y="44" width="148" height="56" rx="10"/>
+            <text x="114" y="64" text-anchor="middle" class="net-label">Website A</text>
+            <text x="114" y="78" text-anchor="middle" class="net-label--muted">fintech app</text>
+            <text x="114" y="90" text-anchor="middle" class="net-sub">POST /v1/verifications</text>
+          </g>
+          <g>
+            <rect class="net-node" x="40" y="112" width="148" height="42" rx="10"/>
+            <text x="114" y="133" text-anchor="middle" class="net-label" style="font-size:10px">Mobile App</text>
+            <text x="114" y="144" text-anchor="middle" class="net-sub">external_user_id: user_892</text>
+          </g>
+          <g>
+            <rect class="net-node" x="40" y="168" width="148" height="42" rx="10"/>
+            <text x="114" y="189" text-anchor="middle" class="net-label" style="font-size:10px">SaaS Dashboard</text>
+            <text x="114" y="200" text-anchor="middle" class="net-sub">poll 3s · 2.4k active</text>
+          </g>
+
+          <!-- API cluster -->
+          <g>
+            <rect class="net-node net-node--api" x="480" y="118" width="160" height="68" rx="12"/>
+            <text x="560" y="142" text-anchor="middle" class="net-label" style="fill:#fff">Verification API</text>
+            <text x="560" y="156" text-anchor="middle" class="net-label--muted" style="fill:#b8e6f0">FastAPI · project scoped</text>
+            <text x="560" y="168" text-anchor="middle" class="net-pill" style="fill:#fff; opacity:.9">vrf_ · SHA-256 · 300s TTL</text>
+          </g>
+          <!-- edge label -->
+          <g>
+            <rect x="500" y="22" width="100" height="18" rx="6" fill="#131916" stroke="#1e2321"/>
+            <text x="550" y="34" text-anchor="middle" class="net-pill">API EDGE</text>
+          </g>
+
+          <!-- DB -->
+          <g>
+            <rect class="net-node net-node--db" x="520" y="268" width="160" height="54" rx="10"/>
+            <text x="600" y="288" text-anchor="middle" class="net-label">PostgreSQL</text>
+            <text x="600" y="302" text-anchor="middle" class="net-sub">verification_sessions</text>
+            <text x="600" y="314" text-anchor="middle" class="net-pill">token_hash · expires_at · status</text>
+          </g>
+
+          <!-- Telegram -->
+          <g>
+            <rect class="net-node net-node--tg" x="900" y="240" width="160" height="58" rx="10"/>
+            <text x="980" y="262" text-anchor="middle" class="net-label" style="fill:#0b0e0d">Telegram Bot</text>
+            <text x="980" y="276" text-anchor="middle" class="net-label--muted" style="fill:#4a5552">/start vfy_…</text>
+            <text x="980" y="288" text-anchor="middle" class="net-sub">chat_id · telegram_user_id</text>
+          </g>
+
+          <!-- poll / webhook bottom -->
+          <g>
+            <rect class="net-node" x="40" y="268" width="180" height="52" rx="10"/>
+            <text x="130" y="288" text-anchor="middle" class="net-label">Polling clients</text>
+            <text x="130" y="302" text-anchor="middle" class="net-sub">GET /v1/verifications/{id}</text>
+          </g>
+          <g>
+            <rect class="net-node" x="900" y="328" width="160" height="52" rx="10" stroke-dasharray="5 5"/>
+            <text x="980" y="347" text-anchor="middle" class="net-label">Webhook</text>
+            <text x="980" y="361" text-anchor="middle" class="net-sub">POST client_url · retry</text>
+          </g>
+          <g>
+            <rect class="net-node" x="520" y="348" width="160" height="42" rx="10"/>
+            <text x="600" y="368" text-anchor="middle" class="net-label" style="font-size:10px">Expiry sweep</text>
+            <text x="600" y="380" text-anchor="middle" class="net-sub">30s · PENDING → EXPIRED</text>
+          </g>
+
+          <!-- moving dots -->
+          <circle r="4" class="net-dot"><animateMotion dur="1.8s" repeatCount="indefinite" rotate="auto"><mpath href="#track-a1"/></animateMotion></circle>
+          <circle r="3.5" class="net-dot net-dot--warn"><animateMotion dur="2.1s" repeatCount="indefinite" begin="0.4s"><mpath href="#track-a2"/></animateMotion></circle>
+          <circle r="3.5" class="net-dot"><animateMotion dur="2.3s" repeatCount="indefinite" begin="0.7s"><mpath href="#track-a3"/></animateMotion></circle>
+          <circle r="4" class="net-dot net-dot--alt"><animateMotion dur="1.6s" repeatCount="indefinite" begin="0.2s"><mpath href="#track-tg"/></animateMotion></circle>
+          <circle r="3" class="net-dot"><animateMotion dur="1.9s" repeatCount="indefinite" begin="0.5s"><mpath href="#track-poll"/></animateMotion></circle>
+          <circle r="3" class="net-dot"><animateMotion dur="1.4s" repeatCount="indefinite"><mpath href="#track-db"/></animateMotion></circle>
+        </svg>
+        <div style="display:flex;gap:8px;padding:10px 14px;border-top:1px solid #1e2321;background:#0b0e0d;flex-wrap:wrap;align-items:center">
+          <span class="mono" style="font-size:.72rem;color:#7a8581">Tracks animate with <span style="color:#cbd5d1">stroke-dash</span> + <span style="color:#22c55e">verified</span> dots. No JS — pure SVG/CSS. Hover to pause.</span>
+          <span style="margin-left:auto;display:flex;gap:6px"><span class="badge" style="background:#131916;border-color:#1e2321;color:#9aa3a0;font-size:.7rem">128-bit entropy</span><span class="badge" style="background:#0e7490;color:#fff;border-color:#0c6580;font-size:.7rem">HMAC verified</span></span>
+        </div>
+      </div>
+
+      <div class="traffic__stats">
+        <div class="tstat"><div class="tstat__k">12.4k <small>req/min</small></div><div class="tstat__label">Throughput</div><div class="tstat__bar"><i style="width:78%"></i></div></div>
+        <div class="tstat"><div class="tstat__k">11 ms <small>p95</small></div><div class="tstat__label">Token issue latency</div><div class="tstat__bar"><i style="width:62%; background:#22c55e"></i></div></div>
+        <div class="tstat"><div class="tstat__k">99.9% <small>uptime</small></div><div class="tstat__label">Verification success</div><div class="tstat__bar"><i style="width:92%; background:#22c55e"></i></div></div>
+        <div class="tstat"><div class="tstat__k">∞ <small>projects</small></div><div class="tstat__label">Tenant isolated</div><div class="tstat__bar"><i style="width:100%; background:#eab308"></i></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEGA FOOTER -->
+  <footer class="mega-footer" aria-label="Site footer">
+    <div class="mega-footer__ghost" aria-hidden="true">harry</div>
+    <div class="shell">
+      <div class="mega-footer__top">
+        <div>
+          <div class="mega-footer__brand">harry <small>Telegram verification API · v1</small></div>
+          <p style="margin:10px 0 0;color:#9aa3a0;font-size:.92rem;line-height:1.55">Infrastructure for proving Telegram ownership without OTP copy. Project-scoped, SHA-256 hashed, single-use tokens. Built for fintech, SaaS and high-trust products.</p>
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+            <a href="dashboard.html" class="btn" style="height:34px;background:#e8e6e1;color:#0b0e0d;border-color:#e8e6e1">Open dashboard</a>
+            <a href="docs.html" class="btn btn--ghost" style="height:34px;border-color:#2a3431;color:#cbd5d1">Read docs</a>
+          </div>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <a href="index.html#flow">Verification flow</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="verify.html">Hosted verify page</a>
+          <a href="admin.html">Admin &amp; health</a>
+        </div>
+        <div>
+          <h4>Developers</h4>
+          <a href="docs.html#auth">Authentication</a>
+          <a href="docs.html#create">POST /v1/verifications</a>
+          <a href="docs.html#poll">Poll status</a>
+          <a href="docs.html#connections">Connections</a>
+        </div>
+        <div>
+          <h4>System</h4>
+          <a href="admin.html">Status · GET /health</a>
+          <span style="display:block;padding:4px 0;color:#7a8581;font-size:.88rem">Rate limit 20/min</span>
+          <span style="display:block;padding:4px 0;color:#7a8581;font-size:.88rem">Max 100 pending / project</span>
+          <span style="display:block;padding:4px 0;color:#7a8581;font-size:.88rem">TTL 300s · 192-bit tokens</span>
+        </div>
+      </div>
+      <div class="mega-footer__bottom">
+        <span>© 2026 harry · All requests scoped by project_id · No raw secrets stored.</span>
+        <span class="mega-footer__badges"><span>FastAPI</span><span>PostgreSQL</span><span>Telegram Bot API</span><span>SHA-256</span></span>
+      </div>
+    </div>
+  </footer>
+<script>
+  const btn=document.getElementById('menu-btn'),nav=document.getElementById('site-nav');
+  if(btn&&nav){btn.addEventListener('click',()=>{const o=nav.classList.toggle('is-open');btn.classList.toggle('is-open',o);btn.setAttribute('aria-expanded',String(o));});
+  document.addEventListener('click',e=>{if(!nav.contains(e.target)&&!btn.contains(e.target)&&nav.classList.contains('is-open')){nav.classList.remove('is-open');btn.classList.remove('is-open');btn.setAttribute('aria-expanded','false');}});}
+</script>
+</body>
+</html>

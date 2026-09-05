@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>harry — Enter OTP</title>
+  <link rel="stylesheet" href="../../css/tokens.css" />
+  <link rel="stylesheet" href="../../css/base.css" />
+  <link rel="stylesheet" href="auth.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="shell header__inner">
+      <a class="brand" href="../../index.html"><span class="brand__mark">H</span><span class="brand__text">harry <small>OTP</small></span></a>
+      <nav class="nav" id="site-nav"><a href="../../docs.html">Docs</a><a href="../../auth.html">Sign in</a></nav>
+      <button class="header__menu-btn" id="menu-btn" aria-label="Toggle menu" aria-expanded="false"><span></span></button>
+    </div>
+  </header>
+
+  <div class="auth-shell">
+    <div class="auth-visual" aria-hidden="true">
+      <span class="auth-visual__eyebrow">step 2 of 3</span>
+      <h2>Check your<br/>inbox.</h2>
+      <p>Enter the 6-digit code we sent. It’s SHA-256 hashed on the server, single use.</p>
+      <div class="auth-flow">
+        <div class="auth-flow__bar"><strong>harry — auth</strong><span>email → OTP → username</span></div>
+        <div class="auth-flow__body">
+          <div class="auth-progress"><i class="on"></i><i class="on"></i><i></i><span>2 / 3</span></div>
+          <div class="auth-steps">
+            <div class="step-mini"><div class="step-mini__num">✓</div><h4>Email</h4><p class="mute" id="email-done">you@…</p></div>
+            <div class="step-mini is-active"><div class="step-mini__num">2</div><h4>OTP</h4><p class="mute">Enter code</p></div>
+            <div class="step-mini"><div class="step-mini__num">3</div><h4>Username</h4><p class="mute">Next</p></div>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px;align-items:center;font-family:var(--font-mono);font-size:.72rem;color:#7a8581"><span class="badge__dot" style="background:#22c55e"></span> Code sent · expires 04:42 <span style="margin-left:auto" class="badge" style="background:#0e7490;color:#fff;border-color:#0c6580;font-size:.68rem">Demo</span></div>
+        </div>
+      </div>
+      <div class="auth-visual__ghost">harry</div>
+    </div>
+
+    <div class="auth-panel">
+      <div class="auth-card">
+        <a href="email.html" class="mono" style="font-size:.82rem;color:var(--color-mute);text-decoration:none">← Back to email</a>
+        <h1 style="margin-top:8px">Enter OTP</h1>
+        <p class="auth-card__sub">Sent to <strong class="mono" id="email-show">you@company.com</strong>. Check spam too.</p>
+
+        <div class="auth-otp" style="margin-top:18px" aria-label="OTP">
+          <input inputmode="numeric" maxlength="1" aria-label="digit 1" />
+          <input inputmode="numeric" maxlength="1" aria-label="digit 2" />
+          <input inputmode="numeric" maxlength="1" aria-label="digit 3" />
+          <input inputmode="numeric" maxlength="1" aria-label="digit 4" />
+          <input inputmode="numeric" maxlength="1" aria-label="digit 5" />
+          <input inputmode="numeric" maxlength="1" aria-label="digit 6" />
+        </div>
+        <p id="err" class="mono" style="font-size:.78rem;color:var(--color-danger);min-height:1.2em;margin:8px 0 0"></p>
+
+        <a class="auth-btn auth-btn--accent" href="username.html" id="btn-verify" style="margin-top:14px;text-decoration:none">Verify →</a>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+          <span class="mono" style="font-size:.82rem;color:var(--color-mute)">Didn't get it?</span>
+          <a href="#" class="mono" style="font-size:.82rem;color:var(--color-accent);text-decoration:none;font-weight:600" onclick="event.preventDefault();document.getElementById('err').textContent='Demo: code resent (no real sending).';">Resend</a>
+          <span class="mono" style="font-size:.82rem;color:var(--color-mute)">· 00:42</span>
+        </div>
+        <p class="mono" style="font-size:.72rem;color:var(--color-mute);text-align:center;margin-top:14px">Demo: any 6 digits will pass — no backend yet.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const email=localStorage.getItem('harry_pending_email')||'you@company.com';
+    document.getElementById('email-show').textContent=email;
+    const ed=document.getElementById('email-done'); if(ed) ed.textContent=email.slice(0,12)+'…';
+    const inputs=[...document.querySelectorAll('.auth-otp input')];
+    inputs.forEach((inp,i)=>{
+      inp.addEventListener('input',()=>{
+        inp.value=inp.value.replace(/\D/g,'').slice(0,1);
+        if(inp.value && i<5) inputs[i+1].focus();
+      });
+      inp.addEventListener('keydown',e=>{
+        if(e.key==='Backspace' && !inp.value && i>0) inputs[i-1].focus();
+      });
+    });
+    document.getElementById('btn-verify').addEventListener('click',e=>{
+      const code=inputs.map(i=>i.value).join('');
+      if(code.length<6){e.preventDefault();document.getElementById('err').textContent='Enter 6 digits.';}
+      else localStorage.setItem('harry_pending_otp', code);
+    });
+    const hb=document.getElementById('menu-btn'),nv=document.getElementById('site-nav');if(hb&&nv){hb.addEventListener('click',()=>{const o=nv.classList.toggle('is-open');hb.classList.toggle('is-open',o);hb.setAttribute('aria-expanded',String(o));});}
+  </script>
+</body>
+</html>

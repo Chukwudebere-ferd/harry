@@ -1,0 +1,48 @@
+/* admin page */
+.admin-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: end;
+}
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-3);
+}
+@media (max-width: 820px) {
+    .stat-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.stat {
+    padding: 18px;
+    border: 1px solid var(--color-line);
+    background: var(--color-surface);
+    border-radius: 12px;
+}
+.stat__k {
+    font-family: var(--font-mono);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+.stat__label {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-mute);
+    font-weight: 700;
+    margin-top: 4px;
+}
+.health-pre {
+    background: var(--color-bg);
+    border: 1px solid var(--color-line);
+    padding: 12px;
+    border-radius: 8px;
+    min-height: 56px;
+    overflow: auto;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+}

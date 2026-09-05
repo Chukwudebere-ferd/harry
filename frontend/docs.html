@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>harry — Documentation</title>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="pages/docs/docs.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="shell header__inner">
+      <a class="brand" href="index.html"><span class="brand__mark">H</span><span class="brand__text">harry <small>Docs · v1</small></span></a>
+      <nav class="nav" id="site-nav"><a href="docs.html" aria-current="page">Docs</a><a href="dashboard.html">Dashboard</a><a href="auth.html">Sign in</a></nav>
+      <button class="header__menu-btn" id="menu-btn" aria-label="Toggle menu" aria-expanded="false"><span></span></button>
+    </div>
+  </header>
+
+  <div class="shell docs-layout">
+    <aside class="docs-side" aria-label="Docs sections">
+      <h3>Sections</h3>
+      <a href="#flow" class="is-active">↻ Flow</a>
+      <a href="#auth">🔑 Auth</a>
+      <a href="#create">↗ Create verification</a>
+      <a href="#poll">⟳ Poll status</a>
+      <a href="#cancel">✕ Cancel & retry</a>
+      <a href="#webhook">◈ Telegram webhook</a>
+      <a href="#connections">◎ Connections</a>
+      <a href="#errors">⚠ Errors</a>
+      <div style="margin-top:14px;padding:12px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:8px">
+        <div style="font-size:.78rem;font-weight:700">Base URL</div>
+        <div class="mono" style="font-size:.78rem;color:var(--color-mute);word-break:break-all">http://localhost:8000</div>
+        <div class="mono" style="font-size:.78rem;margin-top:4px"><span class="badge" style="font-size:.7rem">/v1</span> versioned</div>
+      </div>
+    </aside>
+
+    <main class="grid">
+      <div class="card" id="flow" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center">
+        <div>
+          <h1 style="font-family:var(--font-display);margin:0;letter-spacing:-.02em;font-size:var(--text-3xl)">Documentation</h1>
+          <p class="mute" style="margin:6px 0 0">Telegram deep-link verification without OTP copy. Every request scoped by <span class="mono">project_id</span>.</p>
+        </div>
+        <span class="badge badge--live"><span class="badge__dot"></span> FastAPI · Postgres · SHA-256</span>
+      </div>
+
+      <div class="endpoint" id="auth">
+        <div class="endpoint__info">
+          <div style="display:flex;gap:8px;align-items:center"><span class="method method--get">AUTH</span><h2 style="margin:0;font-size:1rem">Authorization</h2></div>
+          <p class="mono" style="background:var(--color-bg);border:1px solid var(--color-line);padding:8px 10px;border-radius:8px;margin:12px 0 0">Authorization: Bearer sk_live_…</p>
+          <p class="mute" style="font-size:.9rem">Keep <span class="mono">sk_live_…</span> server-side. Never expose in frontend JavaScript. Tokens are hashed with SHA-256 and verified with <span class="mono">hmac.compare_digest</span>.</p>
+          <ul class="mute" style="font-size:.88rem;margin:8px 0 0;padding-left:18px"><li>Header required on every <span class="mono">/v1/*</span> call</li><li>Project resolved from API key — all queries filtered by <span class="mono">project_id</span></li></ul>
+        </div>
+        <div class="endpoint__code"><button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.textContent)">Copy</button><pre>curl http://localhost:8000/v1/verifications \
+  -H "Authorization: Bearer sk_live_…"</pre></div>
+      </div>
+
+      <div class="endpoint" id="create">
+        <div class="endpoint__info">
+          <div style="display:flex;gap:8px;align-items:center"><span class="method method--post">POST</span><h2 style="margin:0;font-size:1rem">/v1/verifications</h2></div>
+          <p class="mute" style="font-size:.9rem">Create a single-use, 5-minute session. Enforces 20/min rate limit + max 100 pending per project.</p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><span class="badge mono">external_user_id *</span><span class="badge mono">metadata?</span></div>
+          <p class="mute" style="font-size:.84rem;margin:8px 0 0">Response includes <span class="mono">telegram_url</span> (<span class="mono">https://t.me/Bot?start=vfy_…</span>) and <span class="mono">verification_url</span>.</p>
+        </div>
+        <div class="endpoint__code"><button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.textContent)">Copy</button><pre>POST /v1/verifications
+{
+  "external_user_id": "user_12345",
+  "metadata": { "purpose": "signup" }
+}
+
+→ 200
+{
+  "id": "vrf_…",
+  "status": "pending",
+  "telegram_url": "https://t.me/ExampleVerifyBot?start=vfy_…",
+  "verification_url": "http://localhost:8000/verify/vrf_…",
+  "expires_at": "2026-09-05T10:30:00Z"
+}</pre></div>
+      </div>
+
+      <div class="endpoint" id="poll">
+        <div class="endpoint__info">
+          <div style="display:flex;gap:8px;align-items:center"><span class="method method--get">GET</span><h2 style="margin:0;font-size:1rem">/v1/verifications/{id}</h2></div>
+          <p class="mute" style="font-size:.9rem">Poll every 2–5s until terminal state. Lazy-expires on read if past <span class="mono">expires_at</span>.</p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><span class="badge">pending</span><span class="badge" style="background:var(--color-success-soft);border-color:#86efac">verified</span><span class="badge">expired</span><span class="badge">cancelled</span></div>
+        </div>
+        <div class="endpoint__code"><button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.textContent)">Copy</button><pre>GET /v1/verifications/vrf_abc123
+→ { "id":"vrf_…", "status":"verified",
+    "external_user_id":"user_12345",
+    "verified_at":"2026-09-05T10:27:00Z",
+    "expires_at":"2026-09-05T10:30:00Z" }</pre></div>
+      </div>
+
+      <div class="endpoint" id="cancel">
+        <div class="endpoint__info">
+          <div style="display:flex;gap:8px;align-items:center"><span class="method method--post">POST</span><h2 style="margin:0;font-size:1rem">Cancel &amp; retry</h2></div>
+          <p class="mute" style="font-size:.9rem"><span class="mono">POST /v1/verifications/{id}/cancel</span> — only from <span class="mono">pending</span>. Retry creates a new session bound to same user.</p>
+          <p class="mono" style="font-size:.8rem;color:var(--color-mute)">POST /v1/verifications/{id}/retry → new vrf_ + token</p>
+        </div>
+        <div class="endpoint__code"><button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.textContent)">Copy</button><pre>POST /v1/verifications/vrf_abc/cancel
+→ { "id":"vrf_abc", "status":"cancelled" }
+
+POST /v1/verifications/vrf_abc/retry
+→ { "id":"vrf_new…", "telegram_url":"…" }</pre></div>
+      </div>
+
+      <div class="endpoint" id="webhook">
+        <div class="endpoint__info">
+          <div style="display:flex;gap:8px;align-items:center"><span class="method method--post">POST</span><h2 style="margin:0;font-size:1rem">/internal/telegram/webhook</h2></div>
+          <p class="mute" style="font-size:.9rem">Telegram sends <span class="mono">/start vfy_…</span> here. Handler validates hash, checks expiry/usage, marks verified, upserts <span class="mono">telegram_connections</span>.</p>
+          <p class="mute" style="font-size:.84rem">Idempotent per token — second use returns <span class="mono">VERIFICATION_ALREADY_USED</span>.</p>
+        </div>
+        <div class="endpoint__code"><button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.textContent)">Copy</button><pre>POST /internal/telegram/webhook
+{
+  "message": {
+    "text": "/start vfy_…",
+    "from": { "id": 123, "username":"john" },
+    "chat": { "id": 123 }
+  }
+}
+→ { "ok": true }</pre></div>
+      </div>
+
+      <div class="endpoint" id="connections">
+        <div class="endpoint__info">
+          <div style="display:flex;gap:8px;align-items:center"><span class="method method--get">GET</span><h2 style="margin:0;font-size:1rem">/v1/telegram/connections/{external_user_id}</h2></div>
+          <p class="mute" style="font-size:.9rem">After verified, connection persists for notifications (future phase).</p>
+        </div>
+        <div class="endpoint__code"><button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.textContent)">Copy</button><pre>GET /v1/telegram/connections/user_12345
+→ { "connected": true,
+    "telegram_user_id":"123456789",
+    "connected_at":"2026-09-05T10:27:00Z" }</pre></div>
+      </div>
+
+      <div class="card" id="errors">
+        <h2 style="margin:0">Errors</h2>
+        <p class="mute" style="font-size:.9rem">Consistent <span class="mono">{ error: { code, message } }</span> shape. Route-level mapping: 401 for auth, 404 for not-found, 409 for already-used, 429 for rate-limit.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+          <div class="mono" style="background:var(--color-bg);border:1px solid var(--color-line);padding:12px;border-radius:8px;font-size:.8rem;overflow:auto">{
+  "error": {
+    "code": "VERIFICATION_EXPIRED",
+    "message": "Session expired."
+  }
+}</div>
+          <div class="mono" style="background:#0f1412;color:#cbd5d1;padding:12px;border-radius:8px;font-size:.78rem">INVALID_API_KEY
+PROJECT_NOT_FOUND
+VERIFICATION_NOT_FOUND
+VERIFICATION_EXPIRED
+VERIFICATION_ALREADY_USED
+INVALID_VERIFICATION_TOKEN
+RATE_LIMIT_EXCEEDED</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer"><div class="shell footer__grid"><div><strong style="font-family:var(--font-display)">harry</strong> · Docs mirror the live API. Try calls from <a href="dashboard.html">dashboard</a>.</div><a href="index.html">← Back to landing</a></div></footer>
+<script>const hb=document.getElementById('menu-btn'),nv=document.getElementById('site-nav');if(hb&&nv){hb.addEventListener('click',()=>{const o=nv.classList.toggle('is-open');hb.classList.toggle('is-open',o);hb.setAttribute('aria-expanded',String(o));});}</script>
+</body>
+</html>

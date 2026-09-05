@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>harry — Dashboard</title>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="pages/dashboard/dashboard.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="shell header__inner">
+      <a class="brand" href="index.html"><span class="brand__mark">H</span><span class="brand__text">harry <small>Dashboard · v1</small></span></a>
+      <nav class="nav" id="site-nav">
+        <a href="docs.html">Docs</a><a href="dashboard.html" aria-current="page">Dashboard</a><a href="admin.html">Admin</a><a href="auth.html">Sign out</a>
+      </nav>
+      <button class="header__menu-btn" id="menu-btn" aria-label="Toggle menu" aria-expanded="false"><span></span></button>
+    </div>
+  </header>
+
+  <div class="shell layout">
+    <aside class="side" aria-label="Dashboard navigation">
+      <h3>Project</h3>
+      <a href="#create" class="is-active">↗ Create verification</a>
+      <a href="#list">▦ Verifications</a>
+      <a href="#connections">◈ Connections</a>
+      <h3 style="margin-top:16px">Account</h3>
+      <a href="auth.html">API key</a>
+      <a href="docs.html">API reference</a>
+      <div style="margin-top:16px;padding:12px;background:var(--color-bg);border:1px solid var(--color-line);border-radius:8px">
+        <div style="font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-mute)">Polling</div>
+        <div class="poll-indicator" style="margin-top:6px"><span class="poll-bar"><span class="poll-bar__fill"></span></span> 3s interval</div>
+        <p class="mono" style="font-size:.74rem;color:var(--color-mute);margin:6px 0 0">Stops on terminal state.</p>
+      </div>
+    </aside>
+
+    <main class="grid">
+      <div class="card dash-head">
+        <div>
+          <h1 style="margin:0;font-family:var(--font-display);letter-spacing:-.02em;font-size:var(--text-2xl)">Dashboard</h1>
+          <p class="mute" style="margin:4px 0 0">Project-scoped verifications. Every query filtered by <span class="mono">project_id</span>. Tabular data, keyboard ready.</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span class="badge mono" id="dash-key">no key</span>
+          <span class="badge badge--live"><span class="badge__dot"></span> API live</span>
+        </div>
+      </div>
+
+      <div class="dash-kpis">
+        <div class="kpi kpi--accent"><div class="kpi__label">Pending</div><div class="kpi__value" id="kpi-pending">—</div><div class="kpi__spark" aria-hidden="true"><i style="height:8px"></i><i class="on" style="height:14px"></i><i class="on" style="height:18px"></i><i style="height:10px"></i><i class="on" style="height:16px"></i></div></div>
+        <div class="kpi"><div class="kpi__label">Verified (session)</div><div class="kpi__value" id="kpi-verified">—</div><div class="kpi__spark"><i class="on" style="height:16px"></i><i class="on" style="height:20px"></i><i style="height:9px"></i><i class="on" style="height:14px"></i><i style="height:11px"></i></div></div>
+        <div class="kpi"><div class="kpi__label">Expired / cancelled</div><div class="kpi__value" id="kpi-expired">—</div><div class="kpi__spark"><i style="height:9px"></i><i style="height:7px"></i><i class="on" style="height:12px"></i><i style="height:8px"></i><i style="height:10px"></i></div></div>
+        <div class="kpi"><div class="kpi__label">Rate limit</div><div class="kpi__value" style="font-size:1.15rem">20 / min</div><div style="font-size:.78rem;color:var(--color-mute);margin-top:4px">+ max 100 pending / project</div></div>
+      </div>
+
+      <section id="create" class="card">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;flex-wrap:wrap">
+          <div><h2 style="margin:0;font-size:1.05rem;letter-spacing:-.02em">Create verification</h2><p class="mute" style="margin:4px 0 0;font-size:.88rem">Sends <span class="mono">POST /v1/verifications</span>. Returns <span class="mono">telegram_url</span> + <span class="mono">verification_url</span>.</p></div>
+          <span class="badge mono" style="background:var(--color-accent-soft);border-color:var(--color-accent-line);color:var(--color-accent)">SHA-256 stored</span>
+        </div>
+        <div class="create-form" style="margin-top:16px">
+          <div class="create-grid">
+            <label style="font-weight:600;font-size:.88rem">External user ID <span style="color:var(--color-danger)">*</span><input id="ext-id" class="input" placeholder="user_12345" autocomplete="off" style="margin-top:6px" /></label>
+            <label style="font-weight:600;font-size:.88rem">Purpose <input id="purpose" class="input" placeholder="signup" style="margin-top:6px" /></label>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <button class="btn btn--accent" id="btn-create">Create session <span aria-hidden="true">→</span></button>
+            <span class="mute" style="font-size:.84rem">Single-use · expires in 5 min · <span class="mono">vfy_…</span> token</span>
+          </div>
+          <div id="create-out" class="out-box">No session yet. Enter an ID and create.</div>
+          <div id="create-links" style="display:none;gap:8px;flex-wrap:wrap"></div>
+        </div>
+      </section>
+
+      <section id="list" class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div><h2 style="margin:0">Verifications</h2><p class="mute" style="margin:4px 0 0;font-size:.88rem">Poll via <span class="mono">GET /v1/verifications/{id}</span> — 2–5s. Local session list (persists in browser).</p></div>
+          <div style="display:flex;gap:8px"><button class="btn btn--ghost" id="btn-refresh">Refresh</button><button class="btn btn--ghost" id="btn-clear">Clear</button></div>
+        </div>
+        <div style="overflow:auto;margin-top:14px;border:1px solid var(--color-line);border-radius:10px">
+          <table class="table" aria-label="Verifications">
+            <thead><tr><th>ID</th><th>User</th><th>Status</th><th>Expires</th><th>Action</th></tr></thead>
+            <tbody id="v-table"><tr><td colspan="5"><div class="empty"><div class="empty__icon">▦</div><strong>No verifications yet</strong><br/><span class="mute" style="font-size:.88rem">Create a session above. Rows stay in this browser until cleared.</span></div></td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="connections" class="card grid">
+        <h2 style="margin:0">Check connection</h2>
+        <p class="mute" style="margin:0;font-size:.88rem">After verification, <span class="mono">telegram_user_id</span> is bound to <span class="mono">external_user_id</span> for that project. Query here.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="conn-id" class="input" placeholder="external_user_id" style="flex:1;min-width:180px" />
+          <button class="btn" id="btn-conn">Check</button>
+        </div>
+        <div id="conn-out" class="out-box" style="min-height:56px">No check yet. Try the user you just verified.</div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { api, getApiKey } from "./js/api.js";
+    const keyEl = document.getElementById("dash-key");
+    const kPending = document.getElementById("kpi-pending");
+    const kVerified = document.getElementById("kpi-verified");
+    const kExpired = document.getElementById("kpi-expired");
+    const STORE_KEY = "harry_verifications_v1";
+    function loadStore(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)||"[]"); }catch{ return []; } }
+    function saveStore(rows){ localStorage.setItem(STORE_KEY, JSON.stringify(rows.slice(0,24))); }
+    function renderTable(){
+      const rows = loadStore();
+      const tbody = document.getElementById("v-table");
+      if(!rows.length){
+        tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty__icon">▦</div><strong>No verifications yet</strong><br/><span class="mute" style="font-size:.88rem">Create a session above.</span></div></td></tr>';
+        kPending.textContent = "0"; kVerified.textContent="0"; kExpired.textContent="0";
+        return;
+      }
+      let p=0,v=0,e=0;
+      tbody.innerHTML = rows.map(r=>{
+        if(r.status==="pending") p++; else if(r.status==="verified") v++; else e++;
+        const dot = r.status==="pending" ? "pending" : r.status==="verified" ? "verified" : "expired";
+        return `<tr>
+          <td class="mono" style="font-size:.82rem">${r.id}</td>
+          <td class="mono" style="font-size:.84rem">${r.external_user_id}</td>
+          <td><span style="display:inline-flex;align-items:center;gap:6px"><span class="status-dot ${dot}"></span><span class="badge" style="font-size:.74rem">${r.status}</span></span></td>
+          <td class="mono" style="font-size:.78rem;color:var(--color-mute)">${r.expires_at ? new Date(r.expires_at).toLocaleTimeString() : "—"}</td>
+          <td style="display:flex;gap:6px;flex-wrap:wrap">
+            <a class="btn btn--ghost" style="height:30px;padding:0 10px;font-size:.82rem" href="verify.html?id=${r.id}">Open verify</a>
+            <button class="btn btn--ghost" style="height:30px;padding:0 10px;font-size:.82rem" data-poll="${r.id}">Poll</button>
+          </td>
+        </tr>`;
+      }).join("");
+      kPending.textContent = String(p); kVerified.textContent=String(v); kExpired.textContent=String(e);
+      tbody.querySelectorAll("[data-poll]").forEach(btn=>{
+        btn.onclick = async ()=>{
+          const id = btn.getAttribute("data-poll");
+          btn.textContent="…"; btn.disabled=true;
+          try{
+            const data = await api(`/v1/verifications/${id}`);
+            const rows2 = loadStore(); const idx = rows2.findIndex(x=>x.id===id); if(idx>=0){ rows2[idx].status=data.status; rows2[idx].verified_at=data.verified_at||null; saveStore(rows2); renderTable(); }
+          }catch(e){ alert(e.data?.error?.message || e.message); }
+          btn.textContent="Poll"; btn.disabled=false;
+        };
+      });
+    }
+    keyEl.textContent = getApiKey() ? getApiKey().slice(0,14)+"…" : "no key — set in auth.html";
+    renderTable();
+
+    document.getElementById("btn-create").onclick = async ()=>{
+      const external_user_id = document.getElementById("ext-id").value.trim();
+      const purpose = document.getElementById("purpose").value.trim();
+      const out = document.getElementById("create-out");
+      const links = document.getElementById("create-links");
+      if(!external_user_id){ out.textContent="Enter external_user_id"; out.className="out-box"; return; }
+      const btn = document.getElementById("btn-create"); btn.disabled=true; btn.textContent="Creating…";
+      out.textContent="Creating…"; out.className="out-box"; links.style.display="none"; links.innerHTML="";
+      try{
+        const data = await api("/v1/verifications", { method:"POST", body: JSON.stringify({ external_user_id, metadata: purpose ? { purpose } : null }) });
+        out.innerHTML = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><span class="badge">ID <span class="mono">${data.id}</span></span><span class="badge badge--live"><span class="badge__dot"></span> ${data.status}</span></div>
+          <div><strong>Telegram:</strong> <a href="${data.telegram_url}" target="_blank" rel="noreferrer">${data.telegram_url}</a></div>
+          <div><strong>Verify page:</strong> <a href="${data.verification_url}" target="_blank" rel="noreferrer">${data.verification_url}</a></div>
+          <div class="mono" style="margin-top:8px;color:var(--color-mute)">expires_at ${new Date(data.expires_at).toLocaleString()}</div>`;
+        out.className="out-box out-box--success";
+        links.style.display="flex";
+        links.innerHTML = `<a class="btn btn--accent" href="${data.telegram_url}" target="_blank" rel="noreferrer">Open Telegram</a>
+          <a class="btn btn--ghost" href="verify.html?id=${data.id}">Open verify page</a>
+          <button class="btn btn--ghost" id="copy-link">Copy link</button>`;
+        document.getElementById("copy-link").onclick = ()=> navigator.clipboard.writeText(data.telegram_url);
+        const rows = loadStore();
+        rows.unshift({ id:data.id, external_user_id, status:data.status, expires_at:data.expires_at, telegram_url:data.telegram_url });
+        saveStore(rows); renderTable();
+      }catch(e){ out.textContent = e.data?.error?.message || e.message; out.className="out-box"; }
+      btn.disabled=false; btn.textContent="Create session →";
+    };
+    document.getElementById("btn-refresh").onclick = renderTable;
+    document.getElementById("btn-clear").onclick = ()=>{ localStorage.removeItem(STORE_KEY); renderTable(); };
+    document.getElementById("btn-conn").onclick = async ()=>{
+      const id = document.getElementById("conn-id").value.trim();
+      const out = document.getElementById("conn-out");
+      if(!id){ out.textContent="Enter external_user_id"; return; }
+      out.textContent="Checking…";
+      try{
+        const data = await api(`/v1/telegram/connections/${encodeURIComponent(id)}`);
+        if(data.connected){
+          out.innerHTML = `<span class="conn-badge ok">● Connected — <span class="mono">${data.telegram_user_id}</span> · ${new Date(data.connected_at).toLocaleString()}</span><pre class="mono" style="margin:8px 0 0;white-space:pre-wrap">${JSON.stringify(data,null,2)}</pre>`;
+        } else {
+          out.innerHTML = `<span class="conn-badge no">○ Not connected</span><pre class="mono" style="margin:8px 0 0">${JSON.stringify(data,null,2)}</pre>`;
+        }
+      }catch(e){ out.textContent = e.data?.error?.message || e.message; }
+    };
+    // hamburger
+    const hb=document.getElementById('menu-btn'),nv=document.getElementById('site-nav');
+    if(hb&&nv){hb.addEventListener('click',()=>{const o=nv.classList.toggle('is-open');hb.classList.toggle('is-open',o);hb.setAttribute('aria-expanded',String(o));});}
+  </script>
+</body>
+</html>
